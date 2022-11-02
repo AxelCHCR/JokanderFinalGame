@@ -1,5 +1,23 @@
 import time as t
 import random as r
+def llenarCasillas(tope,tamano, matriz, valor):
+    contador = 0
+    while True:
+        if contador == tope:
+            break
+        fila = r.randint(0,tamano-1)
+        columna = r.randint(0, tamano-1)
+        if not isinstance(matriz[fila][columna], int):
+            matriz[fila][columna] = valor
+            contador += 1
+def llenarTerritorios(tamano, matriz, valor):
+    while True:
+        filaGanador = r.randint(0,tamano-1)
+        columnaGanador = r.randint(0,tamano-1)
+        if not isinstance(matriz[filaGanador][columnaGanador], int):
+            matriz[filaGanador][columnaGanador] = valor
+            break
+    
 def mostrarInfoJuego():
     print("\n¡Bienvenido a Jokander: El juego Final!")
     print(f"El juego consiste en tomar una casilla del tablero e ir encontrando puntos alrededor de él.\n\
@@ -14,9 +32,7 @@ def buscarCasilla(tablero, casilla):
     fila = int(casilla[0])
     columna = int(casilla[2:])
     print(f"La casila encontrada contiene al número {tablero[fila-1][columna-1]}")
-    return (tablero[fila][columna], fila, columna)
-
-
+    return (tablero[fila-1][columna-1], fila, columna)
 
 def imprimirTablero(tablero):
     visualizacion = ""
@@ -43,67 +59,17 @@ def generarTablero():
     restantes = totalCasillas-ganarCincoPuntos-ganarDiezPuntos-perderCincoPuntos-perderDiezPuntos
     print(f"Total de casillas: {totalCasillas}\nGanar cinco puntos: {ganarCincoPuntos}\nGanar diez puntos: {ganarDiezPuntos}\
             \nPerderCincoPuntos: {perderCincoPuntos}\nPerderDiezPuntos: {perderDiezPuntos}\nRestantes: {restantes}")
-    contador = 0
-    while True:
-        if contador == ganarCincoPuntos:
-            contador = 0
-            break
-        fila = r.randint(0,tamano-1)
-        columna = r.randint(0, tamano-1)
-        if not isinstance(matriz[fila][columna], int):
-            matriz[fila][columna] = 5
-            contador += 1
-    while True:
-        if contador == ganarDiezPuntos:
-            contador = 0
-            break
-        fila = r.randint(0,tamano-1)
-        columna = r.randint(0, tamano-1)
-        if not isinstance(matriz[fila][columna], int):
-            matriz[fila][columna] = 10
-            contador += 1
-    while True:
-        if contador == perderCincoPuntos:
-            contador = 0
-            break
-        fila = r.randint(0,tamano-1)
-        columna = r.randint(0, tamano-1)
-        if not isinstance(matriz[fila][columna], int):
-            matriz[fila][columna] = -5
-            contador += 1
-    while True:
-        if contador == perderDiezPuntos:
-            contador = 0
-            break
-        fila = r.randint(0,tamano-1)
-        columna = r.randint(0, tamano-1)
-        if not isinstance(matriz[fila][columna], int):
-            matriz[fila][columna] = -10
-            contador += 1
-    while True:
-        if contador == restantes-2:
-            break
-        fila = r.randint(0,tamano-1)
-        columna = r.randint(0, tamano-1)
-        if not isinstance(matriz[fila][columna], int):
-            matriz[fila][columna] = 0
-            contador += 1
-    while True:
-        filaGanador = r.randint(0,tamano-1)
-        columnaGanador = r.randint(0,tamano-1)
-        if not isinstance(matriz[filaGanador][columnaGanador], int):
-            matriz[filaGanador][columnaGanador] = 100
-            break
-    while True:
-        filaPerdedor = r.randint(0,tamano-1)
-        columnaPerdedor = r.randint(0,tamano-1)
-        if not isinstance(matriz[filaPerdedor][columnaPerdedor], int):
-            matriz[filaPerdedor][columnaPerdedor] = -100
-            break
+    llenarCasillas(ganarCincoPuntos, tamano, matriz, 5)
+    llenarCasillas(ganarDiezPuntos, tamano, matriz, 10)
+    llenarCasillas(perderCincoPuntos, tamano, matriz, -5)
+    llenarCasillas(perderDiezPuntos, tamano, matriz, -10)
+    llenarCasillas(restantes-2, tamano, matriz, 0)
+    llenarTerritorios(tamano, matriz,100)
+    llenarTerritorios(tamano, matriz,-100)    
     return matriz
 matriz = generarTablero()
-"""for i in matriz:
-    print(i)"""
+for i in matriz:
+    print(i)
 
 def juego():
     mostrarInfoJuego()
@@ -115,26 +81,37 @@ def juego():
     print("La casilla se solicita usando el siguiente formato:\n\
             Fila-Columna. Ejemplo: 1-2.\n")
     print(imprimirTablero(matriz))
-    contadorIntentos = 0
+    contadorIntentos = 1
     puntosPositivos = 0
     puntosNegativos = 0
-    while contadorIntentos < intentos:
+    while contadorIntentos != intentos:
+        if (len(matriz) == 8 and puntosPositivos >= 14) or (len(matriz) == 9 and puntosPositivos >= 18) or \
+            len(matriz) == 10 and puntosPositivos >= 22:
+            print("Has ganado.")
+            print(f"PuntosTotales: {puntosPositivos-puntosNegativos}")
         casilla = input("Ingrese la casilla a buscar: ")
         casillaAMostrar = buscarCasilla(matriz, casilla)
         casillasJugadas.append((casillaAMostrar[1], casillaAMostrar[2]))
         if casillaAMostrar[0] == 5:
             print(f"{nombre} ha ganado 5 puntos positivos. ")
-        if casillaAMostrar[0] == -5:
+            puntosPositivos += 5
+        elif casillaAMostrar[0] == -5:
             print(f"{nombre} ha ganado 5 puntos negativos. ")
-        if casillaAMostrar[0] == 10:
+            puntosNegativos += 5
+        elif casillaAMostrar[0] == 10:
             print(f"{nombre} ha ganado 10 puntos positivos. ")
-        if casillaAMostrar[0] == -10:
+            puntosPositivos += 10
+        elif casillaAMostrar[0] == -10:
             print(f"{nombre} ha ganado 10 puntos negativos. ")
-        if casillaAMostrar[0] == 100:
+            puntosNegativos += 10
+        elif casillaAMostrar[0] == 100:
             print(f"¡{nombre} ha ganado el juego!")
-        if casillaAMostrar[0] == -100:
+        elif casillaAMostrar[0] == -100:
             print(f"¡{nombre} ha ganado el juego!")
-        
+        else:
+            print(f"{nombre} no gana puntos esta ronda. ")
+        print(f"Cantidad de puntos ganados: {puntosPositivos}\nCantidad de puntos perdidos: {puntosNegativos}\
+                \nIntentos usados: {contadorIntentos}\nIntentos restantes: {intentos-contadorIntentos}")
         print(casillasJugadas)
         contadorIntentos+=1
 
